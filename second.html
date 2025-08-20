@@ -1,0 +1,260 @@
+<header class="site-header" role="banner">
+        <div class="container">
+            <h1 class="site-title">CV Joker</h1>
+            <nav class="user-nav" aria-label="User navigation">
+                <div id="userInfo" class="user-info" hidden>
+                    <span>Logged in as: <span id="userEmail"></span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+<!-- Main Content -->
+    <main role="main">
+        <div class="container">
+            
+            <!-- Job Information Section -->
+            <section class="left">
+                <div class="card">
+                    <h2>The Job</h2>
+                    <form class="job-form" aria-describedby="job-form-description">
+                        <p id="job-form-description" class="sr-only">Enter job details to customize your CV</p>
+                        
+                        <div class="form-group">
+                            <label for="jobLink" class="form-label">Job Link</label>
+                            <input type="url" id="jobLink" name="jobLink" class="form-input"
+                                placeholder="http://"
+                                aria-describedby="jobLink-help"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="targetCompany" class="form-label">Company Name</label>
+                            <input type="text" name="targetCompany" id="targetCompany" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="jobDescription">Job Description</label>
+                            <textarea id="jobDescription" name="jobDescription" rows="30" required></textarea>
+                        </div>
+                        <!-- More form fields... -->
+                    </form>
+
+                    <!-- <label for="jobLink" class="input-label">Job link</label>
+                    <input type="text" name="jobLink" id="jobLink" placeholder="http://" required>
+
+                    <label for="targetCompany" class="input-label">Company Name</label>
+                    <input type="text" name="targetCompany" id="targetCompany" required>
+
+                    <label class="input-label" for="jobDescription">Job Description</label>
+                    <textarea id="jobDescription" name="jobDescription" rows="30" required></textarea> -->
+                </div>
+            </section>
+
+    <section class="right">
+      <h2>CV generator</h2>
+        <div id="userInfo" style="display:none;">
+          Logged in as: <span id="userEmail"></span>
+        </div>
+      
+      <form id="resumeForm" method="post" onsubmit="return false;">
+        <label for="jobTitle">Job Title:</label>
+        <input type="text" name="jobTitle" id="jobTitle" value="Product Design Lead" required>
+        <div id="jobTitleSuggestion" style="margin-top: 5px;"></div>
+
+        <section class="card">
+          <h3>Summary</h3>
+
+          <label for="experienceYears" class="input-label">Years of Experience:</label>
+          <input type="text" name="experienceYears" id="experienceYears" value="10+ years" required>
+
+          <label for="industries" class="input-label">Industries / Key Areas:</label>
+          <input type="text" name="industries" id="industries" value="MarTech/AdTech" required>
+
+          <label for="skillsSummary" class="input-label">Top Skills / Functions:</label>
+          <input type="text" name="skillsSummary" id="skillsSummary" value="interaction design" required>
+
+          <label for="achievement" class="input-label">Achievement:</label>
+          <input type="text" name="achievement" id="achievement" value="super something" required>
+
+          <label for="result" class="input-label">Quantifiable Result:</label>
+          <input type="text" name="result" id="result" value="555" required>
+
+          <label for="goal" class="input-label">Company goal / team type:</label>
+          <input type="text" name="goal" id="goal" value="your fantastic company" required>
+
+          <label for="strength" class="input-label">Your strength:</label>
+          <input type="text" name="strength" id="strength" value="optimism" required>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h3><label for="skills">Skills</label></h3>
+            <button type="button" class="ai-button" onclick="fillSkillsFromAI()">Fill with AI</button>
+          </div>
+          <textarea name="skills" id="skills" rows="6" value="chipi, chipi, chapa, chapa" required></textarea>
+          
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h3>Professional Experience</h3>
+            <button type="button" class="ai-button" onclick="autoFillAchievements()">Fill with AI</button>
+          </div>
+
+          <div id="experienceSection" style="text-align: left;">
+          </div>
+
+        </section>
+
+        <section class="card">
+          <h3>Teaching Experience</h3>
+          <div id="teachingSection" style="text-align: left;">
+            <script>
+              const TEACHING_DATA = [
+                {
+                  "company": "BE by InScience",
+                  "industry": "support program for women obtaining jobs in IT",
+                  "location": "Ukraine",
+                  "dates": "May 2022 - now",
+                  "title": "UI/UX/Product Design Mentor"
+                },
+                {
+                  "company": "Beetroot Academy",
+                  "industry": "IT courses",
+                  "location": "Ukraine",
+                  "dates": "Jun 2024 - now",
+                  "title": "UI/UX Design Teacher"
+                },
+                {
+                  "company": "ITEA",
+                  "industry": "IT courses",
+                  "location": "Ukraine",
+                  "dates": "Jun 2024 - now",
+                  "title": "Graphic Design Basics Teacher"
+                },
+              ];
+            </script>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Education</h3>
+          
+          <div style="text-align: left;">
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Odesa Polytechnic National University","program":"Computer Science, B.Sc. (obtaining currently)","location":"Odesa, Ukraine","dates":"2023–2027"}' checked>
+              <span class="education-text">Odesa Polytechnic National University — Computer Science, B.Sc. (obtaining currently) (Odesa, Ukraine, 2023–2027)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Nielsen Norman Group","program":"UXMC with specialization in Interaction Design and UX Management","location":"online","dates":"2023–2025"}' checked>
+              <span class="education-text">Nielsen Norman Group — UXMC with specialization in Interaction Design (online, 2023–2025)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Smashing","program":"Design Patterns For AI Interfaces","location":"online","dates":"2025"}' checked>
+              <span class="education-text">Smashing — Design Patterns For AI Interfaces (online, 2025)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Projector","program":"Design Systems (by Francesco Cutolo)","location":"online","dates":"2024"}' checked>
+              <span class="education-text">Projector — Design Systems (by Francesco Cutolo) (online, 2024)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Projector","program":"UX Strategy (by Vitaly Friedman)","location":"online","dates":"2024"}' checked>
+              <span class="education-text">Projector — UX Strategy (by Vitaly Friedman) (online, 2024)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Navchalnya","program":"Spline 3D","location":"online","dates":"2024"}'>
+              <span class="education-text">Navchalnya — Spline 3D (online, 2024)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Projector","program":"Design KPIs (by Vitaly Friedman)","location":"online","dates":"2023"}' checked>
+              <span class="education-text">Projector — Design KPIs (by Vitaly Friedman) (online, 2023)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Projector","program":"Complex UI (by Vitaly Friedman)","location":"online","dates":"2021"}' checked>
+              <span class="education-text">Projector — Complex UI (by Vitaly Friedman) (online, 2021)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Hillel","program":"FrontEnd Basic + Pro","location":"Odesa, Ukraine","dates":"2019–2020"}'>
+              <span class="education-text">Hillel — FrontEnd Basic + Pro (Odesa, Ukraine, 2019–2020)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"Projector","program":"UI Accessibility","location":"online","dates":"2019"}'>
+              <span class="education-text">Projector — UI Accessibility (online, 2019)</span>
+            </label>
+
+            <label class="education-checkbox">
+              <input type="checkbox" name="education" value='{"school":"LABA","program":"Employer Branding","location":"Odesa, Ukraine","dates":"2019"}'>
+              <span class="education-text">LABA — Employer Branding (Odesa, Ukraine, 2019)</span>
+            </label>
+
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <span id="copyTooltip" style="visibility: hidden; position: absolute; top: -20px; right: 0; background: #4CAF50; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px;">Copied!</span>
+            <h3>Cover-letter</h3>
+            <div>
+              <button type="button" class="ai-button" style="background-color: grey; margin-right: 12px;" onclick="copyCoverLetter()">Copy</button>
+              <button type="button" class="ai-button" onclick="generateCoverLetter()">Fill with AI</button>
+            </div>
+          </div>
+            <div style="margin-bottom: 10px; display: flex; flex-direction: row;">
+                <label>
+                  <input type="radio" name="coverLang" value="English" checked> English
+                </label>
+                <label style="margin-left: 20px;">
+                  <input type="radio" name="coverLang" value="Ukrainian"> Українська
+                </label>
+            </div>
+          <div id="cover">
+            <textarea id="coverLetter" name="coverLetter" required></textarea>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h3>Validate with AI</h3>
+          </div>
+          <div id="CVvalidation">
+            <div id="CVchart">
+            </div>
+            <div class="CVsuggestions">
+            </div>
+            <button type="button" class="ai-button">Validate CV</button>
+          </div>
+          <div id="coverValidation">
+            <div id="coverChart">
+            </div>
+            <div class="CoverSuggestions">
+            </div>
+            <button type="button" class="ai-button">Validate Cover</button>
+          </div>
+          <input type="submit" value="Generate CV and cover letter">
+        </section>
+
+      </form>
+    </section>
+
+            <div id="loaderOverlay" style="display: none;">
+                <div id="loaderBackdrop"></div>
+                <div id="loaderCentered">
+                    <svg width="60" height="60" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="#4CAF50" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="113">
+                        <animate attributeName="stroke-dashoffset" values="113;0" dur="1s" repeatCount="indefinite" />
+                        <animateTransform attributeName="transform" type="rotate" values="0 20 20;360 20 20" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </main>

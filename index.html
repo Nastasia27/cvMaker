@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Joker - AI CV Generator</title>
+    <meta name="description" content="AI-powered CV and cover letter generator">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header" role="banner">
+    <div class="header-content">
+        <h1 class="site-title">CV Joker</h1>
+        <nav class="user-nav" aria-label="User navigation" id="user-nav">
+            <div id="user-info" class="user-info flex-row-gap-24">
+                <span id="userEmail"></span>
+                <button id="logoutBtn" class="remove-btn">Вийти</button>
+            </div>
+        </nav>
+    </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Auth Section -->
+        <section id="auth-section">
+            <h2>Log In using Google</h2>
+            <button id="loginBtn" class="green-btn">Log in</button>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" class="flex-col-gap-24">
+
+            <!-- Job Information -->
+            <form id="jobForm" class="card" aria-describedby="job-form-description">
+                <h2>The Job</h2>
+                <p id="job-form-description" class="sr-only">Enter job details to customize your CV</p>
+
+                <label for="jobLink">Job Link</label>
+                <input type="url" id="jobLink" name="jobLink" placeholder="http://..." required>
+
+                <label for="targetCompany">Company Name</label>
+                <input type="text" name="targetCompany" id="targetCompany" required>
+
+                <label for="jobDescription">Job Description</label>
+                <textarea id="jobDescription" name="jobDescription" rows="10" required></textarea>
+            </form>
+
+            <!-- Profile Form -->
+            <form id="resumeForm" class="flex-col-gap-24">
+                <div>
+                    <label for="jobTitle">Job Title:</label>
+                    <input type="text" name="jobTitle" id="jobTitle" required>
+                </div>
+
+                <!-- Summary -->
+                <section class="card">
+                    <h3>Summary</h3>
+                    <label for="experienceYears">Years of Experience:</label>
+                    <input type="text" name="experienceYears" id="experienceYears">
+
+                    <label for="industries">Industries / Key Areas:</label>
+                    <input type="text" name="industries" id="industries">
+
+                    <label for="skillsSummary">Top Skills / Functions:</label>
+                    <input type="text" name="skillsSummary" id="skillsSummary">
+
+                    <label for="achievement">Achievement:</label>
+                    <input type="text" name="achievement" id="achievement">
+
+                    <label for="result">Quantifiable Result:</label>
+                    <input type="text" name="result" id="result">
+
+                    <label for="goal">Company goal / team type:</label>
+                    <input type="text" name="goal" id="goal">
+
+                    <label for="strength">Your strength:</label>
+                    <input type="text" name="strength" id="strength">
+                </section>
+
+                <!-- Skills -->
+                <section class="card">
+                    <div class="section-title">
+                        <h3>Skills</h3>
+                        <button type="button" class="ai-button" id="fill-skills-btn">Fill with AI</button>
+                    </div>
+                    <textarea name="skills" id="skills" rows="6"></textarea>
+                </section>
+
+                <!-- Professional Experience -->
+                <section class="card">
+                    <div class="section-title">
+                        <h3>Professional Experience</h3>
+                        <button type="button" class="ai-button" onclick="autoFillAchievements()">Fill with AI</button>
+                    </div>
+                    <div id="experienceSection"></div>
+                    <div class="btn-group">
+                        <button type="button" data-target="experienceSection" data-type="experience" class="green-btn add-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
+                                fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 1a.5.5 0 0 1 .5.5V7.5H14a.5.5 0 0 1 0 1H8.5V14a.5.5 0 0 1-1 0V8.5H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
+                            </svg>
+                        </button>
+                        <button id="saveExperienceBtn" class="green-outline-btn saveBtn">Save</button>
+                    </div>
+                </section>
+
+                <!-- Teaching Experience -->
+                <section class="card">
+                    <h3>Teaching Experience</h3>
+                    <div id="teachingSection"></div>
+                    <div class="btn-group">
+                        <button type="button"  data-target="teachingSection" data-type="teaching" class="green-btn add-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
+                                fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 1a.5.5 0 0 1 .5.5V7.5H14a.5.5 0 0 1 0 1H8.5V14a.5.5 0 0 1-1 0V8.5H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
+                            </svg>
+                        </button>
+                        <button id="saveTeachingBtn" class="green-outline-btn saveBtn">Save</button>
+                    </div>
+                </section>
+
+                <!-- Education -->
+                <section class="card">
+                    <h3>Education</h3>
+                    <div id="educationSection"></div>
+                    <div class="btn-group">
+                        <button type="button"  data-target="educationSection" data-type="education" class="green-btn add-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
+                                fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 1a.5.5 0 0 1 .5.5V7.5H14a.5.5 0 0 1 0 1H8.5V14a.5.5 0 0 1-1 0V8.5H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
+                            </svg>
+                        </button>
+                        <button id="saveEducationBtn" class="green-outline-btn saveBtn">Save</button>
+                    </div>
+                </section>
+
+                <!-- Cover Letter -->
+                <section class="card">
+                <div class="section-title">
+                    <h3>Cover Letter</h3>
+                    <button type="button" class="ai-button" onclick="copyCoverLetter()">Copy</button>
+                    <button type="button" class="ai-button" onclick="generateCoverLetter()">Fill with AI</button>
+                </div>
+                <div>
+                    <label><input type="radio" name="coverLang" value="English" checked> English</label>
+                    <label><input type="radio" name="coverLang" value="Ukrainian"> Українська</label>
+                </div>
+                <textarea id="coverLetter" name="coverLetter"></textarea>
+                </section>
+
+                <!-- Validation -->
+                <section class="card">
+                    <h3>Validate with AI</h3>
+                    <button type="button" class="ai-button">Validate CV</button>
+                    <button type="button" class="ai-button">Validate Cover</button>
+                    <input type="submit" value="Generate CV and cover letter">
+                </section>
+
+            </form>
+            <div id="toast"></div>
+        </section>
+        <div id="loaderOverlay" style="display: none;">
+            <div id="loaderBackdrop"></div>
+            <div id="loaderCentered">
+                <svg width="60" height="60" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" stroke="#4CAF50" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="113">
+                    <animate attributeName="stroke-dashoffset" values="113;0" dur="1s" repeatCount="indefinite" />
+                    <animateTransform attributeName="transform" type="rotate" values="0 20 20;360 20 20" dur="1s" repeatCount="indefinite"/>
+                </circle>
+                </svg>
+            </div>
+        </div>
+
+    </main>
+
+  <script type="module" src="./app.js"></script>
+  <script type="module" src="./aiBackend.js"></script>
+</body>
+</html>
