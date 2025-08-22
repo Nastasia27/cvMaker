@@ -154,7 +154,7 @@ function validateCoverLetter() {
 
   document.getElementById('coverChart').innerHTML = '';
   document.querySelector('.CoverSuggestions').innerHTML = '';
-  document.getElementById('loaderOverlay').style.display = 'block';
+  loaderOverlay.style.display = 'block';
 
   fetch(`${BACKEND_URL}?action=validateCoverLetterAI`, {
     method: 'POST',
@@ -168,7 +168,7 @@ function validateCoverLetter() {
   })
   .then(response => response.json())
   .then(result => {
-    document.getElementById('loaderOverlay').style.display = 'none';
+    loaderOverlay.style.display = 'none';
     if (result.coverMatch !== undefined && Array.isArray(result.coverSuggestions)) {
       renderValidationChart('coverChart', result.coverMatch);
       renderSuggestions('CoverSuggestions', result.coverSuggestions);
@@ -177,10 +177,40 @@ function validateCoverLetter() {
     }
   })
   .catch(err => {
-    document.getElementById('loaderOverlay').style.display = 'none';
+    loaderOverlay.style.display = 'none';
     console.error(err);
     alert("Validation failed.");
   });
+}
+
+async function validateCV() {
+  const jobDescription = document.getElementById('jobDescription').value;
+  const resumeText = collectResumeText();
+
+  document.getElementById('CVchart').innerHTML = '';
+  document.querySelector('.CVsuggestions').innerHTML = '';
+  document.getElementById('loaderOverlay').style.display = 'block';
+
+  try {
+    const result = await callGAS("validateResumeAI", {
+      jobDescription,
+      resumeText
+    });
+
+    document.getElementById('loaderOverlay').style.display = 'none';
+
+    if (result.cvMatch !== undefined && Array.isArray(result.cvSuggestions)) {
+      renderValidationChart('CVchart', result.cvMatch);
+      renderSuggestions('CVsuggestions', result.cvSuggestions);
+    } else {
+      console.warn("Unexpected response format:", result);
+      alert("Validation failed: unexpected response.");
+    }
+  } catch (err) {
+    document.getElementById('loaderOverlay').style.display = 'none';
+    console.error("Validation error:", err);
+    alert("Validation failed.");
+  }
 }
 
 function renderValidationChart(containerId, percentage) {

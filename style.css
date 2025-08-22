@@ -44,6 +44,9 @@
 
     /* Heights */
     --height-header: 100px;
+
+    /* Width */
+    --sm-screen: 768px;
 }
 
 *,
@@ -70,6 +73,12 @@ header{
     align-items: center;
 }
 
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -86,6 +95,14 @@ header{
     justify-content: space-between;
     align-items: center;
     gap: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
+  }
 }
 
 
@@ -121,11 +138,19 @@ h3, h2 {
 } */
 
 .card {
-  /* margin: 24px 0; */
   padding: 24px 36px 36px;
   border: 1px solid grey;
   border-radius: 12px;
   background-color: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-sm);
+  } 
 }
 
 .initial {
@@ -137,6 +162,12 @@ h3, h2 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .exp-header {
+    gap: var(--spacing-xs);
+  }
 }
 
 .exp-card {
@@ -151,6 +182,12 @@ h3, h2 {
   align-items: center;
 }
 
+@media (max-width: 768px) {
+  .exp-label{
+    gap: var(--spacing-xs);
+  }
+}
+
 .exp-summary {
   margin-left: 8px;
 }
@@ -158,6 +195,13 @@ h3, h2 {
 .exp-details-wrapper {
   margin-left: 20px;
 }
+
+@media (max-width: 768px) {
+  .exp-details-wrapper {
+    margin-left: 0px;
+  }
+}
+
 
 .exp-details {
   display: flex;
@@ -206,6 +250,13 @@ input[type="text"], textarea {
   font-size: 14px;
   box-sizing: border-box;
 }
+@media (max-width: 768px) {
+  textarea {
+    height: 200px;
+}
+  
+}
+
 label {
   font-weight: bold;
   display: block;

@@ -14,7 +14,7 @@
     <!-- Header -->
     <header class="header" role="banner">
     <div class="header-content">
-        <h1 class="site-title">CV Joker</h1>
+        <h1 class="site-title">CV Generator</h1>
         <nav class="user-nav" aria-label="User navigation" id="user-nav">
             <div id="user-info" class="user-info flex-row-gap-24">
                 <span id="userEmail"></span>
@@ -59,27 +59,32 @@
 
                 <!-- Summary -->
                 <section class="card">
-                    <h3>Summary</h3>
-                    <label for="experienceYears">Years of Experience:</label>
-                    <input type="text" name="experienceYears" id="experienceYears">
+                    <div>
+                        <h3>Summary</h3>
+                        <label for="experienceYears">Years of Experience:</label>
+                        <input type="text" name="experienceYears" id="experienceYears">
 
-                    <label for="industries">Industries / Key Areas:</label>
-                    <input type="text" name="industries" id="industries">
+                        <label for="industries">Industries / Key Areas:</label>
+                        <input type="text" name="industries" id="industries">
 
-                    <label for="skillsSummary">Top Skills / Functions:</label>
-                    <input type="text" name="skillsSummary" id="skillsSummary">
+                        <label for="skillsSummary">Top Skills / Functions:</label>
+                        <input type="text" name="skillsSummary" id="skillsSummary">
 
-                    <label for="achievement">Achievement:</label>
-                    <input type="text" name="achievement" id="achievement">
+                        <label for="achievement">Achievement:</label>
+                        <input type="text" name="achievement" id="achievement">
 
-                    <label for="result">Quantifiable Result:</label>
-                    <input type="text" name="result" id="result">
+                        <label for="result">Quantifiable Result:</label>
+                        <input type="text" name="result" id="result">
 
-                    <label for="goal">Company goal / team type:</label>
-                    <input type="text" name="goal" id="goal">
+                        <label for="goal">Company goal / team type:</label>
+                        <input type="text" name="goal" id="goal">
 
-                    <label for="strength">Your strength:</label>
-                    <input type="text" name="strength" id="strength">
+                        <label for="strength">Your strength:</label>
+                        <input type="text" name="strength" id="strength">
+                    </div>
+                    <div class="btn-group">
+                        <button id="saveTeachingBtn" class="green-outline-btn saveBtn">Save</button>
+                    </div>
                 </section>
 
                 <!-- Skills -->
@@ -89,13 +94,16 @@
                         <button type="button" class="ai-button" id="fill-skills-btn">Fill with AI</button>
                     </div>
                     <textarea name="skills" id="skills" rows="6"></textarea>
+                    <div class="btn-group">
+                        <button id="saveTeachingBtn" class="green-outline-btn saveBtn">Save</button>
+                    </div>
                 </section>
 
                 <!-- Professional Experience -->
                 <section class="card">
                     <div class="section-title">
                         <h3>Professional Experience</h3>
-                        <button type="button" class="ai-button" onclick="autoFillAchievements()">Fill with AI</button>
+                        <button type="button" class="ai-button" id="fill-achievements-btn">Fill with AI</button>
                     </div>
                     <div id="experienceSection"></div>
                     <div class="btn-group">
@@ -143,8 +151,8 @@
                 <section class="card">
                 <div class="section-title">
                     <h3>Cover Letter</h3>
-                    <button type="button" class="ai-button" onclick="copyCoverLetter()">Copy</button>
-                    <button type="button" class="ai-button" onclick="generateCoverLetter()">Fill with AI</button>
+                    <button type="button" class="ai-button" id="copyCLBtn">Copy</button>
+                    <button type="button" class="ai-button" id="generate-cl-btn">Fill with AI</button>
                 </div>
                 <div>
                     <label><input type="radio" name="coverLang" value="English" checked> English</label>
@@ -156,11 +164,20 @@
                 <!-- Validation -->
                 <section class="card">
                     <h3>Validate with AI</h3>
-                    <button type="button" class="ai-button">Validate CV</button>
-                    <button type="button" class="ai-button">Validate Cover</button>
+                    <section class="validation-block" aria-labelledby="cv-title">
+                        <div class="chart" id="cv-chart"></div>
+                        <div class="suggestions" id="cv-suggestions"></div>
+                        <button type="button" class="ai-button" data-validate="cv" id="validateCVBtn">Validate CV</button>
+                    </section>
+                    <section class="validation-block" aria-labelledby="cover-title">
+                        <div class="chart" id="cover-chart"></div>
+                        <div class="suggestions" id="cover-suggestions"></div>
+                        <button type="button" class="ai-button" data-validate="cover" id="validateCLBtn">Validate Cover</button>
+                    </section>
+
+                    </div>
                     <input type="submit" value="Generate CV and cover letter">
                 </section>
-
             </form>
             <div id="toast"></div>
         </section>
@@ -175,7 +192,7 @@
                 </svg>
             </div>
         </div>
-
+        <footer></footer>
     </main>
 
   <script type="module" src="./app.js"></script>

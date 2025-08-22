@@ -2,6 +2,8 @@ import {auth, db, loginWithGoogle, logout } from "./firebase-init.js";
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js'
 import { doc, addDoc, collection, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
+window.userProfile = {};
+
 const loginBtn   = document.getElementById("loginBtn");
 const logoutBtn  = document.getElementById("logoutBtn");
 const authSection = document.getElementById("auth-section");
@@ -109,6 +111,7 @@ async function loadUserProfile(uid) {
 
     if (snap.exists()) {
         const data = snap.data();
+        window.userProfile = data;
         fillFormFromData(resumeForm, snap.data());
         renderBlocks("experienceSection", data.professionalExperience || [], "experience");
         renderBlocks("teachingSection", data.teachingExperience || [], "teaching");
@@ -293,7 +296,6 @@ async function saveSection(sectionEl, uid) {
   const inputs = sectionEl.querySelectorAll("input, textarea, select");
   const statusEl = sectionEl.querySelector(".status");
 
-  // збираємо дані
   const blockData = {};
   inputs.forEach((el) => {
     blockData[el.name] = el.value;
@@ -305,9 +307,14 @@ async function saveSection(sectionEl, uid) {
       { [blockName]: blockData },
       { merge: true }
     );
+
+    if (!window.userProfile) window.userProfile = {};
+    window.userProfile[blockName] = blockData;
+
     showToast("✅ Збережено!");
+    console.log("Updated global userProfile:", window.userProfile);
   } catch (err) {
-    showToast("❌ Помилка");
+    showToast("❌ Помилка", true);
     console.error(`Error saving ${blockName}:`, err);
   }
 }
