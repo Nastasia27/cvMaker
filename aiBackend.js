@@ -8,6 +8,8 @@ const copyCLBtn = document.getElementById("copyCLBtn");
 const validateCLBtn = document.getElementById("validateCLBtn");
 const validateCVBtn = document.getElementById("validateCVBtn");
 const resumeForm = document.getElementById("resumeForm");
+const resumeBtn = document.getElementById('resume-btn');
+resumeBtn.addEventListener('click', redirectToAppScript);
 
 
 fillSkillsBtn.addEventListener('click', fillSkillsFromAI);
@@ -260,16 +262,17 @@ async function validateCoverLetter() {
 
 async function validateCV() {
   const jobDescription = document.getElementById('jobDescription').value;
-  console.log(JSON.stringify(userProfile, null, 2));
+   const resumeForm = document.getElementById('resumeForm');
+  const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
+  console.log(selectedProfile);
 
   if (!jobDescription) {
     alert("Будь ласка, введіть опис вакансії");
     return;
   }
 
-  const resumeForm = document.getElementById('resumeForm');
-  const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
-
+ 
+  
   document.getElementById('cover-chart').innerHTML = '';
   document.getElementById('cover-suggestions').innerHTML = '';
   loaderOverlay.style.display = 'block';
@@ -474,3 +477,17 @@ function getSelectedJobs() {
   console.log('Selected jobs for achievements:', selectedJobs);
   return selectedJobs;
 }
+
+
+function redirectToAppScript() {
+    const appScriptUrl = "https://script.google.com/macros/s/AKfycbzCI20Gl7EfnLBtmdW0AUPI5WaInY2oJZqGheuhDHRv-bcI5ZUJdZ-nckt4phPklibajA/exec";
+
+    const resumeForm = document.getElementById('resumeForm');
+    const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
+    console.log('selectedProfile', selectedProfile);
+    const encodedData = encodeURIComponent(JSON.stringify(selectedProfile));
+
+    const targetUrl = `${appScriptUrl}?data=${encodedData}`;
+
+    window.location.href = targetUrl;
+  }
