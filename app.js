@@ -1,6 +1,7 @@
 import {auth, db, loginWithGoogle, logout } from "./firebase-init.js";
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js'
-import { doc, addDoc, collection, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { showToast } from "./utils.js";
 
 window.userProfile = {};
 
@@ -107,12 +108,13 @@ async function loadUserProfile(uid) {
   try {
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
-    console.log(snap);
+    console.log('snap', snap);
 
     if (snap.exists()) {
         const data = snap.data();
         window.userProfile = data;
         fillFormFromData(resumeForm, snap.data());
+        console.log('resumeForm', resumeForm);
         renderBlocks("experienceSection", data.professionalExperience || [], "experience");
         renderBlocks("teachingSection", data.teachingExperience || [], "teaching");
         renderBlocks("educationSection", data.education || [], "education");
@@ -282,7 +284,7 @@ resumeForm.addEventListener("submit", async (e) => {
 
 
   try {
-    await setDoc(doc(db, "users", currentUser.uid), saveData);
+    await setDoc(doc(db, "users", currentUser.uid), saveData, { merge: true });
     showToast("Profile saved!");
   } catch (err) {
     console.error("Error saving profile:", err);
@@ -319,58 +321,3 @@ async function saveSection(sectionEl, uid) {
   }
 }
 
-// ===== show messages and errors ======
-function showToast(message, isError = false) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.style.background = isError ? "#e74c3c" : "#2ecc71"; 
-  toast.className = "show";
-
-  setTimeout(() => {
-    toast.className = toast.className.replace("show", "");
-  }, 3000);
-}
-
-
-
-// const userBox    = document.getElementById("userBox");
-// const userPhoto  = document.getElementById("userPhoto");
-
-// const statusEl   = document.getElementById("status");
-// const checkInit  = document.getElementById("checkInit");
-// const checkAuth  = document.getElementById("checkAuthObs");
-// const checkUser  = document.getElementById("checkUser");
-
-// function setCheck(el, ok) {
-//   el.textContent = ok ? "OK" : "ERR";
-//   el.className = ok ? "good" : "bad";
-// }
-
-// function renderSignedOut() {
-//   statusEl.textContent = "Не авторизовано.";
-//   userBox.classList.add("hidden");
-//   loginBtn.classList.remove("hidden");
-//   setCheck(checkUser, false);
-// }
-
-// function renderSignedIn(user) {
-//   statusEl.textContent = `Авторизовано як: ${user.displayName || user.email}`;
-//   userEmail.textContent = user.email || "";
-//   userPhoto.src = user.photoURL || "";
-//   userPhoto.alt = user.displayName || "user";
-//   userBox.classList.remove("hidden");
-//   loginBtn.classList.add("hidden");
-//   setCheck(checkUser, true);
-// }
-
-
-
-// Ініціалізація/спостерігач
-// (function init() {
-//   setCheck(checkInit, !!window.__fb?.app);
-//   setCheck(checkAuth, true);
-//   watchAuth((user) => {
-//     if (user) renderSignedIn(user);
-//     else renderSignedOut();
-//   });
-// })();

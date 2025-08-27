@@ -1,3 +1,5 @@
+import { showToast } from "./utils.js";
+
 const WORKER_URL = "https://divine-feather-fff4.kop-anastasia27.workers.dev/";
 
 const fillSkillsBtn = document.getElementById("fill-skills-btn");
@@ -21,7 +23,6 @@ validateCVBtn.addEventListener('click', validateCV);
 
 // ======= main API request ========
 async function callGAS(action, payload = {}) {
-  console.log(`Calling GAS action: ${action}`, payload);
   
   try {
     const response = await fetch(`${WORKER_URL}?action=${action}`, {
@@ -42,7 +43,6 @@ async function callGAS(action, payload = {}) {
     }
 
     const data = await response.json();
-    console.log("GAS response:", data);
     
     if (data.error) {
       throw new Error(data.error);
@@ -56,13 +56,12 @@ async function callGAS(action, payload = {}) {
 }
 
 async function fillSkillsFromAI() {
-  console.log('fillSkillsFromAI run');
   const jobDescription = document.getElementById("jobDescription").value.trim();
   const userProfile = window.userProfile || {};
   const skillsTextarea = document.getElementById("skills");
 
   if (!jobDescription) {
-    alert("Будь ласка, введіть опис вакансії спочатку");
+    showToast("Будь ласка, введіть опис вакансії спочатку", true);
     return;
   }
 
@@ -99,34 +98,14 @@ async function fillSkillsFromAI() {
   }
 }
 
-// // ======= функція зберігання вібраніх робіт ====== 
-// function getSelectedJobs () {
-//   const selectedJobs = [];
-//   document
-//     .querySelectorAll('input[type="checkbox"][id^="experienceCheckbox"]')
-//     .forEach((checkbox, index) => {
-//       if (checkbox.checked) {
-//         const companyInput = document.querySelector(
-//           `#experienceDetails${index} input[data-field="company"]`
-//         );
-//         if (companyInput) {
-//           selectedJobs.push({ index, company: companyInput.value });
-//         }
-//       }
-//     });
-//     console.log('selectedJobs', selectedJobs);
-//   return selectedJobs;
-// }
-
 // ==== Автозаповнення досягнень ====
 async function autoFillAchievements() {
-  console.log("autoFillAchievements run");
   const jobDescription = document.getElementById("jobDescription").value.trim();
   const selectedJobs = getSelectedJobs();
   const userProfile = window.userProfile || {};
 
   if (selectedJobs.length === 0) {
-    alert("Виберіть місце роботи для заповнення досягнень.");
+    showToast("Виберіть місце роботи для заповнення досягнень.", true);
     return;
   }
 
@@ -144,7 +123,6 @@ async function autoFillAchievements() {
         `experienceAchievements${job.index}`
       );
       const aiAchievements = data[job.company];
-      console.log("aiAchievements", aiAchievements);
 
       if (achievementsTextarea && aiAchievements?.length > 0) {
         achievementsTextarea.value = aiAchievements
@@ -153,8 +131,7 @@ async function autoFillAchievements() {
       }
     });
   } catch (err) {
-      console.error('AI error:', err);
-      alert("Помилка при зверненні до AI.");
+      showToast("Помилка при зверненні до AI.", true);
   } finally {
       loaderOverlay.style.display = "none";
   }
@@ -168,7 +145,7 @@ async function generateCoverLetter() {
   const selectedLang = document.querySelector('input[name="coverLang"]:checked')?.value || 'English';
 
   if (!jobDescription && !jobTitle) {
-    alert("Будь ласка, введіть назву компанії та опис вакансії");
+    showToast("Будь ласка, введіть назву компанії та опис вакансії", true);
     return;
   }
 
@@ -185,15 +162,11 @@ async function generateCoverLetter() {
       selectedLang: selectedLang,
     });
 
-    console.log("Cover Letter:", result);
-
     const coverLetter = document.getElementById("coverLetter");
-    coverLetter.rows = 25;
     coverLetter.value = result;
     
   } catch (err) {
-      console.error('AI error:', err);
-      alert("Помилка при зверненні до AI.");
+      showToast("Помилка при зверненні до AI.", true);
   } finally {
       loaderOverlay.style.display = "none";
   }
@@ -204,7 +177,11 @@ async function copyCoverLetter() {
   const textarea = document.getElementById('coverLetter');
   const tooltip = document.getElementById('copyTooltip');
 
-  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) {
+    showToast("Немає тексту для копіювання.", true);
+    return;
+  }
 
   try {
     await navigator.clipboard.writeText(textarea.value);
@@ -215,9 +192,9 @@ async function copyCoverLetter() {
         tooltip.style.visibility = 'hidden';
       }, 1000);
     }
+    showToast("Текст успішно скопійовано!", false);
   } catch (err) {
-    console.error('Failed to copy:', err);
-    alert('Не вдалося скопіювати текст. Спробуйте ще раз.');
+    showToast("Не вдалося скопіювати текст. Спробуйте ще раз.", true);
   }
 }
 
@@ -225,12 +202,14 @@ async function copyCoverLetter() {
 // ==== валідація cover letter ======
 async function validateCoverLetter() {
   const jobDescription = document.getElementById('jobDescription').value.trim();
-  const coverLetterText = document.getElementById('coverLetter').value.trim();
+  const jobTitle = document.getElementById("targetCompany").value.trim();
 
-  if (!jobDescription && !jobTitle) {
-    alert("Будь ласка, введіть назву компанії та опис вакансії");
+   if (!jobDescription && !jobTitle) {
+    showToast("Будь ласка, введіть назву компанії та опис вакансії", true);
     return;
   }
+
+  const coverLetterText = document.getElementById('coverLetter').value.trim();
 
   document.getElementById('cover-chart').innerHTML = '';
   document.getElementById('cover-suggestions').innerHTML = '';
@@ -243,35 +222,30 @@ async function validateCoverLetter() {
     });
 
     loaderOverlay.style.display = 'none';
-    console.log('validateCoverLetter', result);
 
     if (typeof result.coverMatch === "number" && Array.isArray(result.coverSuggestions)) {
       renderProgressCircle("cover-chart", result.coverMatch, 'Cover Letter Match Chart');
       renderSuggestionsList("cover-suggestions", result.coverSuggestions);
     } else {
-      console.warn("Unexpected GAS response:", result);
-      alert("Validation failed: unexpected response.");
+      showToast("Validation failed: unexpected response.", true);
     }
   } catch (err) {
     loaderOverlay.style.display = 'none';
-    console.error("Validation error:", err);
-    alert("Validation failed. Please try again.");
+    showToast("Validation error occurred.", true);
   }
 }
 
 
 async function validateCV() {
   const jobDescription = document.getElementById('jobDescription').value;
-   const resumeForm = document.getElementById('resumeForm');
-  const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
-  console.log(selectedProfile);
 
   if (!jobDescription) {
-    alert("Будь ласка, введіть опис вакансії");
+    showToast("Будь ласка, введіть опис вакансії", true);
     return;
   }
 
- 
+  const resumeForm = document.getElementById('resumeForm');
+  const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile); 
   
   document.getElementById('cover-chart').innerHTML = '';
   document.getElementById('cover-suggestions').innerHTML = '';
@@ -289,24 +263,21 @@ async function validateCV() {
       renderProgressCircle('cv-chart', result.cvMatch);
       renderSuggestionsList('cv-suggestions', result.cvSuggestions);
     } else {
-      console.warn("Unexpected response format:", result);
-      alert("Validation failed: unexpected response.");
+      showToast("Validation failed: unexpected response.", true);
     }
   } catch (err) {
     loaderOverlay.style.display = 'none';
-    console.error("Validation error:", err);
-    alert("Validation failed.");
+    showToast("Validation error occurred.", true);
   }
 }
 
 // ======= progress circle ====== 
 function renderProgressCircle(containerId, percentage, titleText, options = {}) {
   const container = document.getElementById(containerId);
-  const cvTitle = document.getElementById('cv-title');
 
   if (!container) return;
 
-  createTitle({titleText, container});
+  createTitle({titleText, containerId});
 
   const size = options.size || 80;
   const strokeWidth = options.strokeWidth || 8;
@@ -357,45 +328,44 @@ function renderSuggestionsList(containerId, suggestions, options = {}) {
 }
 
 
-function createTitle({ text, container, className = "chart-title" }) {
-  const oldTitle = container.querySelector(`.${className}`);
+// ===== create title for validation section =====
+function createTitle({ titleText, containerId, className = "chart-title" }) {
+  const chartContainer = document.getElementById(containerId);
+  if (!chartContainer) return null;
+
+  const parent = chartContainer.closest(".validation-block");
+  if (!parent) return null;
+
+  const oldTitle = parent.querySelector(`.${className}`);
   if (oldTitle) oldTitle.remove();
 
   const title = document.createElement("h4");
-  title.textContent = text;
+  title.textContent = titleText;
   title.classList.add(className);
-  console.log('title', text, container, title);
 
-  container.prepend(title);
-
+  parent.prepend(title);
   return title;
 }
 
 
 function getSelectedProfileData(formElement, fullProfile = {}) {
-  console.log("🔍 Full profile structure:", fullProfile);
-  
-  // 1. Get current form values (basic profile info)
   const formData = new FormData(formElement);
   const currentFormData = {};
   
-  // Collect non-array form fields
   formData.forEach((value, key) => {
     if (!key.endsWith('[]') && !key.includes('_include')) {
       currentFormData[key] = value;
     }
   });
   
-  // 2. Collect selected experience items based on checkboxes
   const selectedExperience = {
     professional: collectSelectedItems('experience', fullProfile.professionalExperience || []),
     teaching: collectSelectedItems('teaching', fullProfile.teachingExperience || []),
     education: collectSelectedItems('education', fullProfile.education || [])
   };
   
-  // 3. Build the complete selected profile
   const selectedProfile = {
-    // Basic info from current form
+    nameSurname: currentFormData.nameSurname || fullProfile.nameSurname || '',
     jobTitle: currentFormData.jobTitle || fullProfile.jobTitle || '',
     experienceYears: currentFormData.experienceYears || fullProfile.experienceYears || '',
     industries: currentFormData.industries || fullProfile.industries || '',
@@ -405,22 +375,16 @@ function getSelectedProfileData(formElement, fullProfile = {}) {
     goal: currentFormData.goal || fullProfile.goal || '',
     strength: currentFormData.strength || fullProfile.strength || '',
     skills: currentFormData.skills || fullProfile.skills || '',
-    
-    // Selected experience items
     experience: selectedExperience,
   };
-  
-  console.log("✅ Selected profile data:", selectedProfile);
+
   return selectedProfile;
 }
 
 function collectSelectedItems(type, allItems = []) {
   const selectedItems = [];
   
-  // Find all checkboxes for this type
   const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-type="${type}"]`);
-  
-  console.log(`🔍 Found ${checkboxes.length} checkboxes for type: ${type}`);
   
   checkboxes.forEach((checkbox) => {
     const index = parseInt(checkbox.dataset.index, 10);
@@ -428,36 +392,30 @@ function collectSelectedItems(type, allItems = []) {
     if (!isNaN(index) && allItems[index]) {
       const item = { ...allItems[index] };
       
-      // Add checkbox status
       item.isSelected = checkbox.checked;
       item.originalIndex = index;
       
-      // If checked, add to selected items
       if (checkbox.checked) {
         selectedItems.push(item);
       }
     }
   });
   
-  console.log(`✅ Selected ${selectedItems.length} items for ${type}:`, selectedItems);
   return selectedItems;
 }
 
-//===== формуємо тз обраними даними обєкт ===========
+//===== формуємо array з обраними даними ===========
 function getSelectedJobs() {
   const selectedJobs = [];
   
-  // Look for experience checkboxes that are checked
   document.querySelectorAll('input[type="checkbox"][data-type="experience"]').forEach((checkbox) => {
     if (checkbox.checked) {
       const index = parseInt(checkbox.dataset.index, 10);
       
-      // Get company name from the corresponding input field
       const companyInput = document.querySelector(
         `#experienceDetails${index} input[data-field="company"]`
       );
       
-      // Get job title input as well
       const titleInput = document.querySelector(
         `#experienceDetails${index} input[data-field="title"]`
       );
@@ -467,27 +425,54 @@ function getSelectedJobs() {
           index: index,
           company: companyInput.value.trim(),
           title: titleInput ? titleInput.value.trim() : '',
-          // Add achievements textarea reference for later use
           achievementsId: `experienceAchievements${index}`
         });
       }
     }
   });
   
-  console.log('Selected jobs for achievements:', selectedJobs);
   return selectedJobs;
 }
 
 
 function redirectToAppScript() {
-    const appScriptUrl = "https://script.google.com/macros/s/AKfycbzCI20Gl7EfnLBtmdW0AUPI5WaInY2oJZqGheuhDHRv-bcI5ZUJdZ-nckt4phPklibajA/exec";
+  const jobDescription = document.getElementById('jobDescription').value.trim();
+  const targetCompany = document.getElementById("targetCompany").value.trim();
+  const jobLink = document.getElementById("jobLink").value.trim();
 
-    const resumeForm = document.getElementById('resumeForm');
-    const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
-    console.log('selectedProfile', selectedProfile);
-    const encodedData = encodeURIComponent(JSON.stringify(selectedProfile));
+  const appScriptUrl = "https://script.google.com/macros/s/AKfycbzvTgZglP2ORtF9hzNPcK8zGfvl1iFLuZOnvyw0aIWahRoOoc_Hr2ti73k7dU8uu4t7dw/exec";
+  loaderOverlay.style.display = 'block';
 
-    const targetUrl = `${appScriptUrl}?data=${encodedData}`;
+    try {
+      const resumeForm = document.getElementById('resumeForm');
+      const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
+      console.log('selectedProfile', selectedProfile);
 
-    window.location.href = targetUrl;
+      if (!selectedProfile) {
+        showToast("No profile data to send.", true);
+      }
+      const coverLetterEl = document.getElementById('coverLetter');
+      const coverLetterText = coverLetterEl ? coverLetterEl.value.trim() : '';
+
+      const dataToSend = {
+        ...selectedProfile,
+        coverLetterText,
+        jobDescription,
+        targetCompany,
+        jobLink
+      };
+
+      console.log('dataToSend', dataToSend);
+
+      const encodedData = encodeURIComponent(JSON.stringify(dataToSend));
+      const targetUrl = `${appScriptUrl}?data=${encodedData}`;
+
+      window.open(targetUrl, '_blank');
+      loaderOverlay.style.display = 'none';
+    } catch (error) {
+      showToast("Error occurred while processing your request.", true);
+    } finally {
+      loaderOverlay.style.display = 'none';
+    }
+    
   }
