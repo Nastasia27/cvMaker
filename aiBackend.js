@@ -440,7 +440,7 @@ function redirectToAppScript() {
   const targetCompany = document.getElementById("targetCompany").value.trim();
   const jobLink = document.getElementById("jobLink").value.trim();
 
-  const appScriptUrl = "https://script.google.com/macros/s/AKfycbzvTgZglP2ORtF9hzNPcK8zGfvl1iFLuZOnvyw0aIWahRoOoc_Hr2ti73k7dU8uu4t7dw/exec";
+  const appScriptUrl = "https://script.google.com/macros/s/AKfycby8GTYf_OUECqkcs0DA-W7UwM4WTg44wfYLreezF9_8pG7F-68fdaIsMRPMqoIePmlc6w/exec";
   loaderOverlay.style.display = 'block';
 
     try {
