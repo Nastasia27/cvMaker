@@ -1,4 +1,5 @@
 import { showToast } from "./utils.js";
+import { escapeHTML } from "./utils.js";
 
 const WORKER_URL = "https://divine-feather-fff4.kop-anastasia27.workers.dev/";
 
@@ -119,10 +120,12 @@ async function autoFillAchievements() {
     });
 
     selectedJobs.forEach((job) => {
+      console.log('job', job);
       const achievementsTextarea = document.getElementById(
         `experienceAchievements${job.index}`
       );
       const aiAchievements = data[job.company];
+      console.log('AI Achievements:', aiAchievements);
 
       if (achievementsTextarea && aiAchievements?.length > 0) {
         achievementsTextarea.value = aiAchievements
@@ -201,18 +204,20 @@ async function copyCoverLetter() {
 
 // ==== валідація cover letter ======
 async function validateCoverLetter() {
-  const jobDescription = document.getElementById('jobDescription').value.trim();
-  const jobTitle = document.getElementById("targetCompany").value.trim();
+  const jobDescription = document.getElementById('jobDescription')?.value.trim() || "";
+  const jobTitle = document.getElementById("targetCompany")?.value.trim() || "";
 
-   if (!jobDescription && !jobTitle) {
+  if (!jobDescription && !jobTitle) {
     showToast("Будь ласка, введіть назву компанії та опис вакансії", true);
     return;
   }
 
-  const coverLetterText = document.getElementById('coverLetter').value.trim();
+  const coverLetterText = document.getElementById('coverLetter')?.value.trim() || "";
+  const coverChart = document.getElementById('cover-chart');
+  const coverSuggestions = document.getElementById('cover-suggestions');
+  if (coverChart) coverChart.replaceChildren();
+  if (coverSuggestions) coverSuggestions.replaceChildren();
 
-  document.getElementById('cover-chart').innerHTML = '';
-  document.getElementById('cover-suggestions').innerHTML = '';
   loaderOverlay.style.display = 'block';
 
   try {
@@ -224,7 +229,7 @@ async function validateCoverLetter() {
     loaderOverlay.style.display = 'none';
 
     if (typeof result.coverMatch === "number" && Array.isArray(result.coverSuggestions)) {
-      renderProgressCircle("cover-chart", result.coverMatch, 'Cover Letter Match Chart');
+      renderProgressCircle("cover-chart", result.coverMatch, "Cover Letter Match Chart");
       renderSuggestionsList("cover-suggestions", result.coverSuggestions);
     } else {
       showToast("Validation failed: unexpected response.", true);
@@ -237,7 +242,8 @@ async function validateCoverLetter() {
 
 
 async function validateCV() {
-  const jobDescription = document.getElementById('jobDescription').value;
+  const jobDescriptionInput = document.getElementById('jobDescription');
+  const jobDescription = jobDescriptionInput.value.trim();
 
   if (!jobDescription) {
     showToast("Будь ласка, введіть опис вакансії", true);
@@ -245,23 +251,27 @@ async function validateCV() {
   }
 
   const resumeForm = document.getElementById('resumeForm');
-  const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile); 
-  
-  document.getElementById('cover-chart').innerHTML = '';
-  document.getElementById('cover-suggestions').innerHTML = '';
+  const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
+
+  const chartContainer = document.getElementById('cover-chart');
+  const suggestionsContainer = document.getElementById('cover-suggestions');
+
+  chartContainer.textContent = "";
+  suggestionsContainer.textContent = "";
+
   loaderOverlay.style.display = 'block';
 
   try {
     const result = await callGAS("validateResumeAI", {
-      jobDescription: jobDescription,
-      profile: selectedProfile,
+      jobDescription: escapeHTML(jobDescription),
+      profile: selectedProfile, 
     });
 
     loaderOverlay.style.display = 'none';
 
-    if (result.cvMatch !== undefined && Array.isArray(result.cvSuggestions)) {
-      renderProgressCircle('cv-chart', result.cvMatch);
-      renderSuggestionsList('cv-suggestions', result.cvSuggestions);
+    if (typeof result.cvMatch === "number" && Array.isArray(result.cvSuggestions)) {
+      renderProgressCircle('cv-chart', result.cvMatch, "CV Match Chart");
+      renderSuggestionsList('cv-suggestions', result.cvSuggestions.map(s => escapeHTML(s)));
     } else {
       showToast("Validation failed: unexpected response.", true);
     }
@@ -274,10 +284,9 @@ async function validateCV() {
 // ======= progress circle ====== 
 function renderProgressCircle(containerId, percentage, titleText, options = {}) {
   const container = document.getElementById(containerId);
-
   if (!container) return;
 
-  createTitle({titleText, containerId});
+  createTitle({ titleText, containerId });
 
   const size = options.size || 80;
   const strokeWidth = options.strokeWidth || 8;
@@ -289,30 +298,67 @@ function renderProgressCircle(containerId, percentage, titleText, options = {}) 
     percentage >= 60 ? (options.colors?.medium || '#FFC107') :
                        (options.colors?.bad || '#F44336');
 
-  container.innerHTML = `
-    <svg width="${size}" height="${size}">
-      <circle cx="${size/2}" cy="${size/2}" r="${radius}"
-              stroke="#e0e0e0" stroke-width="${strokeWidth}" fill="none" />
-      <circle cx="${size/2}" cy="${size/2}" r="${radius}"
-              stroke="${color}" stroke-width="${strokeWidth}" fill="none"
-              stroke-dasharray="${circumference}"
-              stroke-dashoffset="${circumference * (1 - percentage / 100)}"
-              transform="rotate(-90 ${size/2} ${size/2})" />
-      <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="18">${percentage}%</text>
-    </svg>`;
+  // очищуємо контейнер
+  container.textContent = "";
+
+  // створюємо SVG
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", size);
+  svg.setAttribute("height", size);
+
+  // фонова окружність
+  const bgCircle = document.createElementNS(svgNS, "circle");
+  bgCircle.setAttribute("cx", size / 2);
+  bgCircle.setAttribute("cy", size / 2);
+  bgCircle.setAttribute("r", radius);
+  bgCircle.setAttribute("stroke", "#e0e0e0");
+  bgCircle.setAttribute("stroke-width", strokeWidth);
+  bgCircle.setAttribute("fill", "none");
+
+  // основна окружність (прогрес)
+  const progressCircle = document.createElementNS(svgNS, "circle");
+  progressCircle.setAttribute("cx", size / 2);
+  progressCircle.setAttribute("cy", size / 2);
+  progressCircle.setAttribute("r", radius);
+  progressCircle.setAttribute("stroke", color);
+  progressCircle.setAttribute("stroke-width", strokeWidth);
+  progressCircle.setAttribute("fill", "none");
+  progressCircle.setAttribute("stroke-dasharray", circumference);
+  progressCircle.setAttribute("stroke-dashoffset", circumference * (1 - percentage / 100));
+  progressCircle.setAttribute("transform", `rotate(-90 ${size / 2} ${size / 2})`);
+
+  // текст
+  const text = document.createElementNS(svgNS, "text");
+  text.setAttribute("x", "50%");
+  text.setAttribute("y", "50%");
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("dy", ".3em");
+  text.setAttribute("font-size", "18");
+  text.textContent = `${percentage}%`;
+
+  // додаємо елементи
+  svg.appendChild(bgCircle);
+  svg.appendChild(progressCircle);
+  svg.appendChild(text);
+  container.appendChild(svg);
 }
 
 
 // ===== suggestions =======
 function renderSuggestionsList(containerId, suggestions, options = {}) {
-  const container = document.getElementById(`${containerId}`);
+  const container = document.getElementById(containerId);
   if (!container) return;
 
-  container.innerHTML = "";
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
 
   if (!suggestions || suggestions.length === 0) {
     if (options.showEmptyMessage !== false) {
-      container.innerHTML = '<p>No suggestions, looks good!</p>';
+      const p = document.createElement("p");
+      p.textContent = "No suggestions, looks good!";
+      container.appendChild(p);
     }
     return;
   }
@@ -320,7 +366,7 @@ function renderSuggestionsList(containerId, suggestions, options = {}) {
   const ul = document.createElement("ul");
   suggestions.forEach(suggestion => {
     const li = document.createElement("li");
-    li.textContent = suggestion;
+    li.textContent = suggestion; 
     ul.appendChild(li);
   });
 

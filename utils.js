@@ -9,3 +9,13 @@ export function showToast(message, isError = false) {
     toast.className = toast.className.replace("show", "");
   }, 3000);
 }
+
+// ====  енкодер для рядків (escape HTML) =====
+export function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}

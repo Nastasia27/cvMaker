@@ -45,7 +45,6 @@ loginBtn.addEventListener("click", async () => {
   } 
 });
 
-
 // LogOut
 logoutBtn.addEventListener("click", async () => {
   try {
@@ -148,51 +147,82 @@ function fillFormFromData(form, data) {
     });
 }
 
-//create new block with inputs depends on the type
+
+// ====== створення блоку досвіду ======
 function createBlock(item, index, type, fields, withAchievements = false) {
   const wrapper = document.createElement("div");
   wrapper.classList.add("exp-card");
-  wrapper.setAttribute("data-exp-index", index);
+  wrapper.dataset.expIndex = index;
 
-  const id = `${type}Checkbox${index}`;
+  const header = document.createElement("div");
+  header.classList.add("exp-header");
 
-  const fieldsHtml = fields.map(field => `
-    <input 
-      type="text" 
-      name="${type}${capitalize(field)}[]" 
-      data-field="${field}" 
-      value="${item[field] || ""}" 
-      placeholder="${capitalize(field)}"
-    />
-  `).join("");
+  const label = document.createElement("label");
+  label.classList.add("exp-label");
 
-  wrapper.innerHTML = `
-    <div class="exp-header">
-      <label class="exp-label">
-        <input type="checkbox" id="${id}" name="${type}_include[]" value="1" 
-          data-exp-toggle data-index="${index}" data-type="${type}" />
-        <span>
-          ${item[fields[0]] || capitalize(fields[0])} — ${item[fields[1]] || capitalize(fields[1])} (${item.dates || "Dates"})
-        </span>
-      </label>
-      <button type="button" class="remove-btn">✖</button>
-    </div>
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.id = `${type}Checkbox${index}`;
+  checkbox.name = `${type}_include[]`;
+  checkbox.value = "1";
+  checkbox.dataset.expToggle = "";
+  checkbox.dataset.index = index;
+  checkbox.dataset.type = type;
 
-    <div id="${type}Details${index}" class="exp-details-wrapper">
-      <div class="exp-details">
-        ${fieldsHtml}
-      </div>
-      ${
-        withAchievements
-          ? `<label for="${type}Achievements${index}" class="input-label">Achievements:</label>
-             <textarea id="${type}Achievements${index}" name="${type}Achievements[]" 
-               data-field="achievements" rows="6">${item.achievements || ""}</textarea>`
-          : ""
-      }
-    </div>
-  `;
+  const span = document.createElement("span");
+  span.textContent = `${item[fields[0]] || capitalize(fields[0])} — ${item[fields[1]] || capitalize(fields[1])} (${item.dates || "Dates"})`;
 
-  wrapper.querySelector(".remove-btn").addEventListener("click", () => wrapper.remove());
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.classList.add("remove-btn");
+  removeBtn.textContent = "✖";
+  removeBtn.addEventListener("click", () => wrapper.remove());
+
+  label.appendChild(checkbox);
+  label.appendChild(span);
+
+  header.appendChild(label);
+  header.appendChild(removeBtn);
+
+  const detailsWrapper = document.createElement("div");
+  detailsWrapper.id = `${type}Details${index}`;
+  detailsWrapper.classList.add("exp-details-wrapper");
+
+  const details = document.createElement("div");
+  details.classList.add("exp-details");
+
+  fields.forEach(field => {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = `${type}${capitalize(field)}[]`;
+    input.dataset.field = field;
+    input.value = item[field] || "";
+    input.placeholder = capitalize(field);
+    details.appendChild(input);
+  });
+
+  detailsWrapper.appendChild(details);
+
+  if (withAchievements) {
+    const achLabel = document.createElement("label");
+    achLabel.setAttribute("for", `${type}Achievements${index}`);
+    achLabel.classList.add("input-label");
+    achLabel.textContent = "Achievements:";
+
+    const textarea = document.createElement("textarea");
+    textarea.id = `${type}Achievements${index}`;
+    textarea.name = `${type}Achievements[]`;
+    textarea.dataset.field = "achievements";
+    textarea.rows = 6;
+    textarea.value = item.achievements || "";
+
+    detailsWrapper.appendChild(achLabel);
+    detailsWrapper.appendChild(textarea);
+  }
+
+  wrapper.appendChild(header);
+  wrapper.appendChild(detailsWrapper);
+
   return wrapper;
 }
 
@@ -206,15 +236,26 @@ function renderBlocks(containerId, data, type) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  container.innerHTML = "";
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
 
-  const { fields, withAchievements } = blockConfigs[type];
+  const config = blockConfigs[type];
+  if (!config) return;
 
-  data.forEach((item, index) => {
-    container.appendChild(createBlock(item || {}, index, type, fields, withAchievements));
+  const { fields, withAchievements } = config;
+
+  (Array.isArray(data) ? data : []).forEach((item, index) => {
+    const safeBlock = createBlock(item || {}, index, type, fields, withAchievements);
+
+    if (safeBlock instanceof HTMLElement) {
+      container.appendChild(safeBlock);
+    } else {
+      console.warn("createBlock did not return an element", safeBlock);
+    }
   });
 
-  counters[type] = data.length;
+  counters[type] = Array.isArray(data) ? data.length : 0;
 }
 
 // ======== add new block ===========
