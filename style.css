@@ -77,6 +77,10 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    gap: var(--spacing-sm);
 }
 
 .container {
@@ -120,22 +124,6 @@ h3, h2 {
     display: flex;
     gap: var(--spacing-md);
 }
-
-/* .left, .right {
-  padding: 64px;
-} */
-/* .left {
-  width: 600px;
-  padding-top: 40px;
-  position: relative;
-} */
-/* .left > .card {
-  position: fixed;
-  top: 60px;
-  left: 60px;
-  width: 600px;
-  margin: 0;
-} */
 
 .card {
   padding: 24px 36px 36px;
@@ -244,7 +232,7 @@ h3, h2 {
     font-size: var(--font-size-base);
 }
 
-input[type="text"], textarea {
+input[type="text"], input[type="url"], textarea {
   width: 100%;
   padding: 8px;
   font-size: 14px;
@@ -445,3 +433,8 @@ label.education-checkbox {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.separator {
+      margin: 2rem 0;
+      border-bottom: 1px solid #ddd;
+    }

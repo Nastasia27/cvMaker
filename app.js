@@ -4,6 +4,7 @@ import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/f
 import { showToast } from "./utils.js";
 
 window.userProfile = {};
+window.currentUid = null;
 
 const loginBtn   = document.getElementById("loginBtn");
 const logoutBtn  = document.getElementById("logoutBtn");
@@ -86,7 +87,7 @@ document.querySelectorAll(".saveBtn").forEach((btn) => {
 onAuthStateChanged(auth, async(user) => {
   if (user) {
     currentUser = user;
-    console.log(user)
+    window.currentUid = user.uid;
     authSection.style.display = "none";
     profileSection.style.display = "block";
     userInfo.style.display = "block";
@@ -107,22 +108,19 @@ async function loadUserProfile(uid) {
   try {
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
-    console.log('snap', snap);
 
     if (snap.exists()) {
         const data = snap.data();
         window.userProfile = data;
+
         fillFormFromData(resumeForm, snap.data());
-        console.log('resumeForm', resumeForm);
         renderBlocks("experienceSection", data.professionalExperience || [], "experience");
         renderBlocks("teachingSection", data.teachingExperience || [], "teaching");
         renderBlocks("educationSection", data.education || [], "education");
-        console.log("Profile loaded:", snap.data());
     } else {
         renderBlocks("teachingSection", [], "teaching", false);
         renderBlocks("experienceSection", [], "experience");
         renderBlocks("educationSection", [], "education");
-        console.log("No profile data found.");
     }
   } catch (err) {
         console.error("Error loading profile:", err);
@@ -164,10 +162,12 @@ function createBlock(item, index, type, fields, withAchievements = false) {
   checkbox.type = "checkbox";
   checkbox.id = `${type}Checkbox${index}`;
   checkbox.name = `${type}_include[]`;
-  checkbox.value = "1";
+  checkbox.value = String(index);
   checkbox.dataset.expToggle = "";
   checkbox.dataset.index = index;
   checkbox.dataset.type = type;
+
+  checkbox.checked = item && typeof item.included === "boolean" ? item.included : true;
 
   const span = document.createElement("span");
   span.textContent = `${item[fields[0]] || capitalize(fields[0])} — ${item[fields[1]] || capitalize(fields[1])} (${item.dates || "Dates"})`;
@@ -190,6 +190,12 @@ function createBlock(item, index, type, fields, withAchievements = false) {
 
   const details = document.createElement("div");
   details.classList.add("exp-details");
+
+  const idxHidden = document.createElement("input");
+  idxHidden.type = "hidden";
+  idxHidden.name = `${type}Index[]`;
+  idxHidden.value = String(index);
+  details.appendChild(idxHidden);
 
   fields.forEach(field => {
     const input = document.createElement("input");
@@ -220,6 +226,12 @@ function createBlock(item, index, type, fields, withAchievements = false) {
     detailsWrapper.appendChild(textarea);
   }
 
+  detailsWrapper.style.display = checkbox.checked ? "block" : "none";
+
+  checkbox.addEventListener("change", () => {
+    detailsWrapper.style.display = checkbox.checked ? "block" : "none";
+  });
+
   wrapper.appendChild(header);
   wrapper.appendChild(detailsWrapper);
 
@@ -249,10 +261,13 @@ function renderBlocks(containerId, data, type) {
     const safeBlock = createBlock(item || {}, index, type, fields, withAchievements);
 
     if (safeBlock instanceof HTMLElement) {
+      
       container.appendChild(safeBlock);
     } else {
       console.warn("createBlock did not return an element", safeBlock);
     }
+
+    container.appendChild(safeBlock);
   });
 
   counters[type] = Array.isArray(data) ? data.length : 0;
@@ -270,19 +285,34 @@ function addBlock(targetId, type) {
   counters[type]++;
 }
 
+// ======== collect blocks data ===========
 function collectBlocks(formData, type) {
   const { fields, withAchievements } = blockConfigs[type];
+  const firstFieldKey = `${type}${capitalize(fields[0])}`;
+  const itemsCount = (formData[firstFieldKey] || []).length;
 
-  return formData[`${type}${capitalize(fields[0])}`]?.map((_, i) => {
+  const includedIdx = new Set((formData[`${type}_include`] || []).map(String));
+  const indices = formData[`${type}Index`] || [];
+
+  const out = [];
+  for (let j = 0; j < itemsCount; j++) {
+    const idx = (indices[j] !== undefined) ? String(indices[j]) : String(j);
+
     const obj = {};
-    fields.forEach(field => {
-        obj[field] = formData[`${type}${capitalize(field)}`][i] || "";
+    fields.forEach(f => {
+      const arr = formData[`${type}${capitalize(f)}`] || [];
+      obj[f] = arr[j] || "";
     });
+
     if (withAchievements) {
-      obj.achievements = formData[`${type}Achievements`][i] || "";
+      const achArr = formData[`${type}Achievements`] || [];
+      obj.achievements = achArr[j] || "";
     }
-    return obj;
-  }) || [];
+
+    obj.included = includedIdx.has(idx);
+    out.push(obj);
+  }
+  return out;
 }
 
 
@@ -302,7 +332,6 @@ resumeForm.addEventListener("submit", async (e) => {
 
   const formData = {};
   new FormData(resumeForm).forEach((value, key) => {
-    // Якщо масив (company[], industry[], etc.)
     if (key.endsWith("[]")) {
       const cleanKey = key.replace("[]", "");
       if (!formData[cleanKey]) formData[cleanKey] = [];
@@ -316,13 +345,19 @@ resumeForm.addEventListener("submit", async (e) => {
     const teachingExperience = collectBlocks(formData, "teaching");
     const education = collectBlocks(formData, "education");
 
+    const jobData = {
+      jobLink: formData.jobLink || "",
+      jobCompany: formData.targetCompany || "",
+      jobDescription: formData.jobDescription || "",
+    };
+
     const saveData = {
         ...formData,
         professionalExperience,
         teachingExperience,
         education,
+        job: jobData,
     };
-
 
   try {
     await setDoc(doc(db, "users", currentUser.uid), saveData, { merge: true });

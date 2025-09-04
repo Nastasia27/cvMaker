@@ -1,5 +1,6 @@
 import { showToast } from "./utils.js";
 import { escapeHTML } from "./utils.js";
+import {auth} from "./firebase-init.js";
 
 const WORKER_URL = "https://divine-feather-fff4.kop-anastasia27.workers.dev/";
 
@@ -10,7 +11,6 @@ const generateCoverLBtn = document.getElementById("generate-cl-btn");
 const copyCLBtn = document.getElementById("copyCLBtn");
 const validateCLBtn = document.getElementById("validateCLBtn");
 const validateCVBtn = document.getElementById("validateCVBtn");
-const resumeForm = document.getElementById("resumeForm");
 const resumeBtn = document.getElementById('resume-btn');
 resumeBtn.addEventListener('click', redirectToAppScript);
 
@@ -34,8 +34,6 @@ async function callGAS(action, payload = {}) {
       },
       body: JSON.stringify(payload),
     });
-
-    console.log(`Response status: ${response.status}`);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -120,12 +118,10 @@ async function autoFillAchievements() {
     });
 
     selectedJobs.forEach((job) => {
-      console.log('job', job);
       const achievementsTextarea = document.getElementById(
         `experienceAchievements${job.index}`
       );
       const aiAchievements = data[job.company];
-      console.log('AI Achievements:', aiAchievements);
 
       if (achievementsTextarea && aiAchievements?.length > 0) {
         achievementsTextarea.value = aiAchievements
@@ -297,17 +293,13 @@ function renderProgressCircle(containerId, percentage, titleText, options = {}) 
     percentage >= 90 ? (options.colors?.good || '#4CAF50') :
     percentage >= 60 ? (options.colors?.medium || '#FFC107') :
                        (options.colors?.bad || '#F44336');
-
-  // очищуємо контейнер
   container.textContent = "";
 
-  // створюємо SVG
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
   svg.setAttribute("width", size);
   svg.setAttribute("height", size);
 
-  // фонова окружність
   const bgCircle = document.createElementNS(svgNS, "circle");
   bgCircle.setAttribute("cx", size / 2);
   bgCircle.setAttribute("cy", size / 2);
@@ -316,7 +308,6 @@ function renderProgressCircle(containerId, percentage, titleText, options = {}) 
   bgCircle.setAttribute("stroke-width", strokeWidth);
   bgCircle.setAttribute("fill", "none");
 
-  // основна окружність (прогрес)
   const progressCircle = document.createElementNS(svgNS, "circle");
   progressCircle.setAttribute("cx", size / 2);
   progressCircle.setAttribute("cy", size / 2);
@@ -328,7 +319,6 @@ function renderProgressCircle(containerId, percentage, titleText, options = {}) 
   progressCircle.setAttribute("stroke-dashoffset", circumference * (1 - percentage / 100));
   progressCircle.setAttribute("transform", `rotate(-90 ${size / 2} ${size / 2})`);
 
-  // текст
   const text = document.createElementNS(svgNS, "text");
   text.setAttribute("x", "50%");
   text.setAttribute("y", "50%");
@@ -337,7 +327,6 @@ function renderProgressCircle(containerId, percentage, titleText, options = {}) 
   text.setAttribute("font-size", "18");
   text.textContent = `${percentage}%`;
 
-  // додаємо елементи
   svg.appendChild(bgCircle);
   svg.appendChild(progressCircle);
   svg.appendChild(text);
@@ -411,6 +400,9 @@ function getSelectedProfileData(formElement, fullProfile = {}) {
   };
   
   const selectedProfile = {
+    jobLink: currentFormData.jobLink || fullProfile.jobLink || '',
+    targetCompany: currentFormData.targetCompany || fullProfile.targetCompany || '',
+    jobDescription: currentFormData.jobDescription || fullProfile.jobDescription || '',
     nameSurname: currentFormData.nameSurname || fullProfile.nameSurname || '',
     jobTitle: currentFormData.jobTitle || fullProfile.jobTitle || '',
     experienceYears: currentFormData.experienceYears || fullProfile.experienceYears || '',
@@ -480,45 +472,26 @@ function getSelectedJobs() {
   return selectedJobs;
 }
 
-
+// ====== redirect to app script and send userId ===== 
 function redirectToAppScript() {
-  const jobDescription = document.getElementById('jobDescription').value.trim();
-  const targetCompany = document.getElementById("targetCompany").value.trim();
-  const jobLink = document.getElementById("jobLink").value.trim();
-
-  const appScriptUrl = "https://script.google.com/macros/s/AKfycby8GTYf_OUECqkcs0DA-W7UwM4WTg44wfYLreezF9_8pG7F-68fdaIsMRPMqoIePmlc6w/exec";
+  const appScriptUrl = "https://script.google.com/macros/s/AKfycbwa7S6ehhC-v7PrJ_i9gXNGdy3_omXSoFWvb79nKqbBDnTznQD6af2WaA3bhHB9kxhg3w/exec";
   loaderOverlay.style.display = 'block';
 
-    try {
-      const resumeForm = document.getElementById('resumeForm');
-      const selectedProfile = getSelectedProfileData(resumeForm, window.userProfile);
-      console.log('selectedProfile', selectedProfile);
-
-      if (!selectedProfile) {
-        showToast("No profile data to send.", true);
-      }
-      const coverLetterEl = document.getElementById('coverLetter');
-      const coverLetterText = coverLetterEl ? coverLetterEl.value.trim() : '';
-
-      const dataToSend = {
-        ...selectedProfile,
-        coverLetterText,
-        jobDescription,
-        targetCompany,
-        jobLink
-      };
-
-      console.log('dataToSend', dataToSend);
-
-      const encodedData = encodeURIComponent(JSON.stringify(dataToSend));
-      const targetUrl = `${appScriptUrl}?data=${encodedData}`;
-
-      window.open(targetUrl, '_blank');
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      showToast("User not signed in!", true);
       loaderOverlay.style.display = 'none';
-    } catch (error) {
-      showToast("Error occurred while processing your request.", true);
-    } finally {
-      loaderOverlay.style.display = 'none';
+      return;
     }
-    
+
+    const userId = user.uid; 
+    const targetUrl = `${appScriptUrl}?userId=${encodeURIComponent(userId)}`;
+
+    window.open(targetUrl, '_blank');
+  } catch (error) {
+    showToast("Error occurred while processing your request.", true);
+  } finally {
+    loaderOverlay.style.display = 'none';
   }
+}

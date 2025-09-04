@@ -6,6 +6,7 @@
     <title> AI CV Generator</title>
     <meta name="description" content="AI-powered CV and cover letter generator">
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="logo.png">
 </head>
 <body>
 
@@ -33,23 +34,23 @@
         <!-- Profile Section -->
         <section id="profile-section" class="flex-col-gap-24">
 
-            <!-- Job Information -->
-            <form id="jobForm" class="card" aria-describedby="job-form-description">
-                <h2>The Job</h2>
-                <p id="job-form-description" class="sr-only">Enter job details to customize your CV</p>
-
-                <label for="jobLink">Job Link</label>
-                <input type="url" id="jobLink" name="jobLink" placeholder="http://..." required>
-
-                <label for="targetCompany">Company Name</label>
-                <input type="text" name="targetCompany" id="targetCompany" required>
-
-                <label for="jobDescription">Job Description</label>
-                <textarea id="jobDescription" name="jobDescription" rows="10" required></textarea>
-            </form>
-
             <!-- Profile Form -->
             <form id="resumeForm" class="flex-col-gap-24">
+
+                <!-- Job Information -->
+                <div id="jobForm" class="card" aria-describedby="job-form-description">
+                    <h2>The Job</h2>
+                    <p id="job-form-description" class="sr-only">Enter job details to customize your CV</p>
+
+                    <label for="jobLink">Job Link</label>
+                    <input type="url" id="jobLink" name="jobLink" placeholder="http://..." required>
+
+                    <label for="targetCompany">Company Name</label>
+                    <input type="text" name="targetCompany" id="targetCompany" required>
+
+                    <label for="jobDescription">Job Description</label>
+                    <textarea id="jobDescription" name="jobDescription" rows="10" required></textarea>
+                </div>
                 <div>
                     <label for="jobTitle">Job Title:</label>
                     <input type="text" name="jobTitle" id="jobTitle" required>
@@ -193,8 +194,11 @@
                 </svg>
             </div>
         </div>
-        <footer></footer>
     </main>
+    <footer >
+        <p>&copy; 2025 CV Generator</p>
+        <a href="privacy-policy.html">Privacy Policy</a>
+    </footer>
 
     <script type="module" src="./utils.js"></script>
     <script type="module" src="./app.js"></script>
