@@ -4,7 +4,6 @@ import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/f
 import { showToast } from "./utils.js";
 
 window.userProfile = {};
-window.currentUid = null;
 
 const loginBtn   = document.getElementById("loginBtn");
 const logoutBtn  = document.getElementById("logoutBtn");
@@ -396,4 +395,3 @@ async function saveSection(sectionEl, uid) {
     console.error(`Error saving ${blockName}:`, err);
   }
 }
-

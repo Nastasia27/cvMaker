@@ -3,6 +3,7 @@ import { escapeHTML } from "./utils.js";
 import {auth} from "./firebase-init.js";
 
 const WORKER_URL = "https://divine-feather-fff4.kop-anastasia27.workers.dev/";
+const APP_SSCRIPT_DOC_GEN_URL = 'https://script.google.com/macros/s/AKfycby65lHoxQa3uzF8rEAezBtd_ov2dzQrKN6y6LjXbCjsL0bzdTqkXm9MzAJgOgLV5CHH/exec';
 
 const fillSkillsBtn = document.getElementById("fill-skills-btn");
 const loaderOverlay = document.getElementById("loaderOverlay");
@@ -474,7 +475,7 @@ function getSelectedJobs() {
 
 // ====== redirect to app script and send userId ===== 
 function redirectToAppScript() {
-  const appScriptUrl = "https://script.google.com/macros/s/AKfycbwa7S6ehhC-v7PrJ_i9gXNGdy3_omXSoFWvb79nKqbBDnTznQD6af2WaA3bhHB9kxhg3w/exec";
+  const appScriptUrl = APP_SSCRIPT_DOC_GEN_URL;
   loaderOverlay.style.display = 'block';
 
   try {

@@ -24,6 +24,7 @@
     
     /* Typography */
     --font-size-base: 16px;
+    --font-size-xs: 0.75rem;
     --font-size-lg: 1.25rem;
     --font-size-xl: 1.5rem;
     --font-weight-normal: 400;
@@ -124,6 +125,22 @@ h3, h2 {
     display: flex;
     gap: var(--spacing-md);
 }
+
+/* .left, .right {
+  padding: 64px;
+} */
+/* .left {
+  width: 600px;
+  padding-top: 40px;
+  position: relative;
+} */
+/* .left > .card {
+  position: fixed;
+  top: 60px;
+  left: 60px;
+  width: 600px;
+  margin: 0;
+} */
 
 .card {
   padding: 24px 36px 36px;
@@ -435,6 +452,14 @@ label.education-checkbox {
 }
 
 .separator {
-      margin: 2rem 0;
-      border-bottom: 1px solid #ddd;
-    }
+  margin: 2rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.service {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+}
